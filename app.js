@@ -436,25 +436,25 @@ quiz.addQuestion(question1);
 quiz.addQuestion(question1_1);
 quiz.addQuestion(question1_2);
 quiz.addQuestion(question2);
-// quiz.addQuestion(question2_1);
-// quiz.addQuestion(question2_2);
-// quiz.addQuestion(question3);
-// quiz.addQuestion(question3_1);
-// quiz.addQuestion(question4);
-// quiz.addQuestion(question4_1);
-// quiz.addQuestion(question5);
-// quiz.addQuestion(question6);
-// quiz.addQuestion(question7);
-// quiz.addQuestion(question8);
-// quiz.addQuestion(question9);
-// quiz.addQuestion(question10);
-// quiz.addQuestion(question11);
-// quiz.addQuestion(question12);
-// quiz.addQuestion(question13);
-// quiz.addQuestion(question14);
-// quiz.addQuestion(question15);
-// quiz.addQuestion(question16);
-// quiz.addQuestion(question17);
+quiz.addQuestion(question2_1);
+quiz.addQuestion(question2_2);
+quiz.addQuestion(question3);
+quiz.addQuestion(question3_1);
+quiz.addQuestion(question4);
+quiz.addQuestion(question4_1);
+quiz.addQuestion(question5);
+quiz.addQuestion(question6);
+quiz.addQuestion(question7);
+quiz.addQuestion(question8);
+quiz.addQuestion(question9);
+quiz.addQuestion(question10);
+quiz.addQuestion(question11);
+quiz.addQuestion(question12);
+quiz.addQuestion(question13);
+quiz.addQuestion(question14);
+quiz.addQuestion(question15);
+quiz.addQuestion(question16);
+quiz.addQuestion(question17);
 function validarUserName() {
   // let nameInput = document.getElementById("name").value.trim();
   let input = document.getElementById("name");
@@ -485,12 +485,12 @@ function validarUserName() {
               .idQuestion + 1;
 
       welcon2(nameInput, true);
-      let btn = document.getElementById("btnNuvaEncuesta");
-      btn.classList.remove("hidden");
+      // let btn = document.getElementById("btnNuvaEncuesta");
+      // btn.classList.remove("hidden");
       // console.log('btn:', btn)
     } else {
       usuarios.push(personOne);
-      welcon2(nameInput);
+      welcon2(nameInput, false);
     }
   }
 }
@@ -503,12 +503,13 @@ function welcon2(name, existe = false) {
   let mensaje = "";
 
   if (existe) {
+    console.log("quiz.questions.length :", quiz.questions.length);
     mensajeBienvenida = "Bienvenid@ de nuevo";
     quiz.questions.length === 0
-      ? (mensaje = `Te faltan <span class="numberOfQuestions">${
+      ? (mensaje = `Terminaste la encuesta`)
+      : (mensaje = `Te faltan <span class="numberOfQuestions">${
           quiz.questions.length - porTerminar.addAnswer.length
-        }</span> preguntas por responder`)
-      : (mensaje = `Terminaste la encuesta`);
+        }</span> preguntas por responder`);
   } else {
     mensajeBienvenida = "Bienvenid@";
     mensaje = `Esta encuesta tiene <span class="numberOfQuestions">${quiz.questions.length}</span> preguntas`;
