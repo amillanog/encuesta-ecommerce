@@ -2,10 +2,35 @@ let elWelcomescreen = document.getElementById("welcomescreen");
 let elQuestionScreen = document.getElementById("questionscreen");
 let elScreenResult = document.getElementById("resultscreen");
 let usuarios = [];
+// console.log('usuarios:', usuarios)
 let ativeUser = {
   name: "",
   id: "",
 };
+
+guardarUsuarios = () => {
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+};
+
+guardarAtiveUser = () => {
+  localStorage.setItem("ativeUser", JSON.stringify(ativeUser));
+};
+
+cargarUsuarios = () => {
+  if (localStorage.getItem("usuarios")) {
+    usuarios = JSON.parse(localStorage.getItem("usuarios"));
+    // console.log("carga de usuarios ", usuarios);
+  }
+};
+
+cargarAtiveUser = () => {
+  if (localStorage.getItem("ativeUser")) {
+    ativeUser = JSON.parse(localStorage.getItem("ativeUser"));
+  }
+};
+
+cargarUsuarios();
+cargarAtiveUser();
 
 function Usuarios(fname, id) {
   this.firstName = fname;
@@ -27,43 +52,46 @@ function Quiz() {
     this.questions.push(question);
   };
 
+  this.showResults = function () {
+    elScreenResult.innerHTML = "";
+    let elResultTitle = document.createElement("p");
+    elResultTitle.textContent = "Resultados";
+    elResultTitle.classList.add("title");
+    elScreenResult.append(elResultTitle);
+    let elResultDescription = document.createElement("p");
+    elResultDescription.textContent = "Gracias por participar en la encuesta";
+    elResultDescription.classList.add("description");
+    elScreenResult.append(elResultDescription);
+    let boxbutton = document.createElement("div");
+    boxbutton.classList.add("box-button");
+    elScreenResult.append(boxbutton);
+    let elResultButton = document.createElement("button");
+    elResultButton.textContent = "Ver mi resultado";
+    let elResult = document.createElement("div");
+    elResult.classList.add("result");
+    elScreenResult.append(elResult);
+    elResultButton.addEventListener("click", () => showResult(elResult));
+    boxbutton.append(elResultButton);
+    if (usuarios.length > 1) {
+      let otherUsers = document.createElement("button");
+      otherUsers.textContent = "Otras persona";
+      otherUsers.setAttribute("id", "btOtherUsers");
+      otherUsers.addEventListener("click", () => otherResult(elResult));
+      boxbutton.append(otherUsers);
+    }
+    let btnFinish = document.createElement("button");
+    btnFinish.textContent = "Ir al inicio";
+    btnFinish.addEventListener("click", () => finishQuiz("finish"));
+    boxbutton.append(btnFinish);
+    elScreenResult.classList.remove("hidden");
+  };
+
   this.showCurrentQuestion = function () {
     if (this.indexCurrentQuestion < this.questions.length) {
       this.questions[this.indexCurrentQuestion].getElement();
     } else {
-      // console.log(usuarios);
       // elQuestionScreen.classList.add("hidden");
-      elScreenResult.innerHTML = "";
-      let elResultTitle = document.createElement("p");
-      elResultTitle.textContent = "Resultados";
-      elResultTitle.classList.add("title");
-      elScreenResult.append(elResultTitle);
-      let elResultDescription = document.createElement("p");
-      elResultDescription.textContent = "Gracias por participar en la encuesta";
-      elResultDescription.classList.add("description");
-      elScreenResult.append(elResultDescription);
-      let boxbutton = document.createElement("div");
-      boxbutton.classList.add("box-button");
-      elScreenResult.append(boxbutton);
-      let elResultButton = document.createElement("button");
-      elResultButton.textContent = "Ver resultados";
-      let elResult = document.createElement("div");
-      elResult.classList.add("result");
-      elScreenResult.append(elResult);
-      elResultButton.addEventListener("click", () => showResult(elResult));
-      boxbutton.append(elResultButton);
-      if (usuarios.length > 1) {
-        let otherUsers = document.createElement("button");
-        otherUsers.textContent = "Otras persona";
-        otherUsers.setAttribute("id", "btOtherUsers");
-        otherUsers.addEventListener("click", () => otherResult(elResult));
-        boxbutton.append(otherUsers);
-      }
-      let btnFinish = document.createElement("button");
-      btnFinish.textContent = "Finalizar";
-      btnFinish.addEventListener("click", finishQuiz);
-      boxbutton.append(btnFinish);
-      elScreenResult.classList.remove("hidden");
+      this.showResults();
     }
   };
 }
@@ -83,16 +111,24 @@ function Welcome(title, description, buttonTile, buttonAction) {
     elWelcomeDescription.classList.add("box-description");
     elWelcomeDescription.innerHTML = description;
     elWelcomescreen.append(elWelcomeDescription);
+    let boxbutton = document.createElement("div");
+    boxbutton.classList.add("box-button");
+    boxbutton.setAttribute("id", "boxbuttonWelcome");
+    elWelcomescreen.append(boxbutton);
+
     let elWelcomeButton = document.createElement("button");
     elWelcomeButton.innerHTML = buttonTile;
     elWelcomeButton.addEventListener("click", buttonAction);
-    elWelcomescreen.append(elWelcomeButton);
+    elWelcomeButton.setAttribute("id", "btWelcome");
+    boxbutton.append(elWelcomeButton);
+
+    let btnNuevaConsulta = document.createElement("button");
+    btnNuevaConsulta.innerHTML = "Nueva encuesta";
+    btnNuevaConsulta.addEventListener("click", () => eliminar());
+    btnNuevaConsulta.setAttribute("id", "btnNuvaEncuesta");
+    btnNuevaConsulta.classList.add("hidden");
+    boxbutton.append(btnNuevaConsulta);
   };
-  // this.getBody = function () {
-  //   for (let i = 0; i < this.answers.length; i++) {
-  //     body += i + 1 + ". " + this.answers[i] + "\n";
-  //   }
-  // }
 }
 
 function Question(title, answers) {
@@ -116,7 +152,7 @@ function Question(title, answers) {
   };
   this.getElement = function () {
     // console.log(usuarios);
-    
+
     let questionTitle = document.createElement("h3");
     questionTitle.innerHTML = this.title;
     elQuestionScreen.append(questionTitle);
@@ -134,11 +170,20 @@ function Question(title, answers) {
       elAnswer.addEventListener("click", this.checkAnswer);
       questionAnswers.append(elAnswer);
     });
+
     elQuestionScreen.append(questionAnswers);
+    let boxButton = document.createElement("div");
+    boxButton.classList.add("box-button");
+    elQuestionScreen.append(boxButton);
+
     let questionNumber = document.createElement("p");
-    questionNumber.classList.add("txt-end");
-    questionNumber.innerHTML = `Pregunta : ${quiz.counter++ + 1}`;
-    elQuestionScreen.append(questionNumber);
+    questionNumber.innerHTML = `Pregunta : ${quiz.indexCurrentQuestion + 1}`;
+    boxButton.append(questionNumber);
+
+    let btnExit = document.createElement("button");
+    btnExit.textContent = "Salir de la encuesta";
+    btnExit.addEventListener("click", () => finishQuiz("exit"));
+    boxButton.append(btnExit);
   };
 
   this.checkAnswer = (event) => {
@@ -184,12 +229,14 @@ function Question(title, answers) {
 
     let answerUser = this.answers[Number(anwserSelected.id) - 1];
     usuarios.filter((usuario) => {
-      if (usuario.id === ativeUser.id) {
+      if (usuario.firstName === ativeUser.name) {
         usuario.addAnswer.push({
           question: this.title,
           answer: answerUser,
+          idQuestion: quiz.indexCurrentQuestion,
         });
       }
+      guardarUsuarios();
     });
 
     // if (this.isCorrectAnswer(anwserSelected.id)) {
@@ -378,84 +425,151 @@ let question21 = new Question(
 
 let input = `<input type="text" name="name" id="name" placeholder="Escribe tu nombre" />`;
 let welcon1 = new Welcome(
-  "Porfavor ingresa tu nombre",
+  "Por favor ingresa tu nombre",
   `${input}`,
   "Ingresar",
-  welcon2
+  validarUserName
 );
+
 quiz.addWelcon(welcon1);
 quiz.addQuestion(question1);
 quiz.addQuestion(question1_1);
 quiz.addQuestion(question1_2);
 quiz.addQuestion(question2);
-quiz.addQuestion(question2_1);
-quiz.addQuestion(question2_2);
-quiz.addQuestion(question3);
-quiz.addQuestion(question3_1);
-quiz.addQuestion(question4);
-quiz.addQuestion(question4_1);
-quiz.addQuestion(question5);
-quiz.addQuestion(question6);
-quiz.addQuestion(question7);
-quiz.addQuestion(question8);
-quiz.addQuestion(question9);
-quiz.addQuestion(question10);
-quiz.addQuestion(question11);
-quiz.addQuestion(question12);
-quiz.addQuestion(question13);
-quiz.addQuestion(question14);
-quiz.addQuestion(question15);
-quiz.addQuestion(question16);
-quiz.addQuestion(question17);
-
-function welcon2() {
-  let elName = document.getElementById("name");
-  let name = elName.value;
-  let UID = elName.id + Math.floor(Math.random() * 999999);
-
+// quiz.addQuestion(question2_1);
+// quiz.addQuestion(question2_2);
+// quiz.addQuestion(question3);
+// quiz.addQuestion(question3_1);
+// quiz.addQuestion(question4);
+// quiz.addQuestion(question4_1);
+// quiz.addQuestion(question5);
+// quiz.addQuestion(question6);
+// quiz.addQuestion(question7);
+// quiz.addQuestion(question8);
+// quiz.addQuestion(question9);
+// quiz.addQuestion(question10);
+// quiz.addQuestion(question11);
+// quiz.addQuestion(question12);
+// quiz.addQuestion(question13);
+// quiz.addQuestion(question14);
+// quiz.addQuestion(question15);
+// quiz.addQuestion(question16);
+// quiz.addQuestion(question17);
+function validarUserName() {
+  // let nameInput = document.getElementById("name").value.trim();
+  let input = document.getElementById("name");
+  let nameInput = input.value.trim();
+  let UID = input.id + Math.floor(Math.random() * 999999);
+  // console.log('quiz.indexCurrentQuestion:', quiz.indexCurrentQuestion)
   // let nameId = elName.id;
-  const personOne = new Usuarios(`${name}`, `${UID}`);
-
-  if (name == "") {
-    alert("Porfavor ingresa tu nombre");
+  const personOne = new Usuarios(`${nameInput}`, `${UID}`);
+  ativeUser.name = nameInput;
+  ativeUser.id = UID;
+  // console.log(usuarios)
+  if (nameInput === "") {
+    alert("Por favor ingresa tu nombre");
   } else {
-    ativeUser.name = name;
-    ativeUser.id = UID;
-    usuarios.push(personOne);
-    let welcon2 = new Welcome(
-      `Bienvenid@ <span class="name">${name}</span>`,
-      `Esta encuesta tiene <span class="numberOfQuestions">${quiz.questions.length}</span> preguntas`,
-      "Empezar",
-      seeFirstQuestion
+    // if (usuarios.length > 0) {
+    let existeUser = usuarios.filter(
+      (usuario) => usuario.firstName === nameInput
     );
-    quiz.addWelcon(welcon2);
+    // console.log('existeUser:', existeUser)
+    if (existeUser.length > 0) {
+      ativeUser.name = existeUser[0].firstName;
+      ativeUser.id = existeUser[0].id;
+      let obtenerQuestions = existeUser.find((usuario) => usuario.addAnswer);
+      quiz.indexCurrentQuestion =
+        obtenerQuestions.addAnswer.length === 0
+          ? 0
+          : obtenerQuestions.addAnswer[obtenerQuestions.addAnswer.length - 1]
+              .idQuestion + 1;
+
+      welcon2(nameInput, true);
+      let btn = document.getElementById("btnNuvaEncuesta");
+      btn.classList.remove("hidden");
+      // console.log('btn:', btn)
+    } else {
+      usuarios.push(personOne);
+      welcon2(nameInput);
+    }
   }
 }
 
-function numberOfQuestions() {
-  let elNumberOfQuestions = document.querySelectorAll(".numberOfQuestions");
-  elNumberOfQuestions.forEach(function (elnumberofquestions) {
-    elnumberofquestions.textContent = quiz.questions.length;
-  });
+function welcon2(name, existe = false) {
+  let porTerminar = usuarios.find((usuario) => usuario.firstName === name);
+
+  // console.log("porTerminar:", usuarios);
+  let mensajeBienvenida = "";
+  let mensaje = "";
+
+  if (existe) {
+    mensajeBienvenida = "Bienvenid@ de nuevo";
+    quiz.questions.length === 0
+      ? (mensaje = `Te faltan <span class="numberOfQuestions">${
+          quiz.questions.length - porTerminar.addAnswer.length
+        }</span> preguntas por responder`)
+      : (mensaje = `Terminaste la encuesta`);
+  } else {
+    mensajeBienvenida = "Bienvenid@";
+    mensaje = `Esta encuesta tiene <span class="numberOfQuestions">${quiz.questions.length}</span> preguntas`;
+  }
+  let mensajeBtn = usuarios.length === 0 ? "Iniciar" : "Continuar";
+  let welcon2 = new Welcome(
+    `${mensajeBienvenida} <span class="name">${name}</span>`,
+    mensaje,
+    mensajeBtn,
+    seeFirstQuestion
+  );
+  guardarAtiveUser();
+  quiz.addWelcon(welcon2);
 }
-numberOfQuestions();
+
+// function numberOfQuestions() {
+//   let elNumberOfQuestions = document.querySelectorAll(".numberOfQuestions");
+//   elNumberOfQuestions.forEach(function (elnumberofquestions) {
+//     elnumberofquestions.textContent = quiz.questions.length;
+//   });
+// }
+// numberOfQuestions();
 
 function seeFirstQuestion() {
   let elWelcomeScr = document.getElementById("welcomescreen");
   elWelcomeScr.classList.add("hidden");
+  elQuestionScreen.classList.remove("hidden");
   quiz.showCurrentQuestion();
 }
 
-function finishQuiz() {
+function finishQuiz(acction = "finish") {
   let Divquiz = document.querySelector(".quiz");
   let DivResult = document.querySelector(".result");
-  Divquiz.classList.remove("w100");
-  DivResult.classList.remove("wg");
-  quiz.indexCurrentQuestion = 0;
-  elScreenResult.classList.add("hidden");
+  switch (acction) {
+    case "finish":
+      DivResult.classList.remove("wg");
+      elScreenResult.classList.add("hidden");
+      break;
+
+    case "exit":
+      elQuestionScreen.classList.add("hidden");
+    default:
+      break;
+  }
   elWelcomescreen.classList.remove("hidden");
+  Divquiz.classList.remove("w100");
+  quiz.indexCurrentQuestion = 0;
   quiz.addWelcon(welcon1);
   quiz.counter = 0;
+  elQuestionScreen.textContent = "";
+}
+
+function eliminar() {
+  // console.log("eliminar");
+  let eliminarUser = usuarios.filter(
+    (usuario) => usuario.firstName !== ativeUser.name
+  );
+  // console.log('eliminarUser:', eliminarUser)
+  usuarios = eliminarUser;
+  quiz.indexCurrentQuestion = 0;
+  quiz.addWelcon(welcon1);
 }
 
 function craateBodyResult(answers) {
@@ -496,9 +610,11 @@ function showResult(elResult) {
 
 function otherResult(elResult) {
   let Divquiz = document.querySelector(".quiz");
-  
-  if (usuarios.length > 1) {    
-    let otherUsers = usuarios.filter((usuario) => usuario.id !== ativeUser.id);
+
+  if (usuarios.length > 1) {
+    let otherUsers = usuarios.filter(
+      (usuario) => usuario.firstName !== ativeUser.name
+    );
     let body = "";
     otherUsers.map((usuario) => {
       body += `
@@ -517,7 +633,7 @@ function otherResult(elResult) {
       ${body}	
     `;
   }
-  if(usuarios.length > 2){
+  if (usuarios.length > 2) {
     Divquiz.classList.add("w100");
     elResult.classList.add("wg");
   }
