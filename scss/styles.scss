@@ -250,6 +250,13 @@ main {
             .box-description {
                 margin-bottom: 1em;
             }
+            .box-button{
+                display: flex;                
+               
+                #btnNuvaEncuesta{
+                    margin-left: 2em;
+                }
+            }
         }
 
         .questionscreen {
@@ -296,6 +303,11 @@ main {
 
 
                 }
+            }
+            .box-button{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
             }
         }
 

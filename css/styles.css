@@ -249,6 +249,14 @@ main .quiz .welcomescreen input {
 main .quiz .welcomescreen .box-description {
   margin-bottom: 1em;
 }
+main .quiz .welcomescreen .box-button {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+main .quiz .welcomescreen .box-button #btnNuvaEncuesta {
+  margin-left: 2em;
+}
 main .quiz .questionscreen {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -305,6 +313,17 @@ main .quiz .questionscreen .question__awswers li:hover {
 main .quiz .questionscreen .question__awswers li.answer-selected {
   background-color: var(--color-green-pastel);
   color: var(--color-white);
+}
+main .quiz .questionscreen .box-button {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 main .quiz .resultscreen {
   display: -webkit-box;
